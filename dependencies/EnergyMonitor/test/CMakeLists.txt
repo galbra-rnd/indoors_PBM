@@ -1,21 +1,36 @@
-set(BINARY ${CMAKE_PROJECT_NAME}_test)
-
-# file(GLOB_RECURSE TEST_SOURCES LIST_DIRECTORIES false *.h *.cpp)
-
-# set(SOURCES ${TEST_SOURCES})
-
-add_executable(${BINARY}
+add_executable(EnergyMonitorSimple_test
 EnergyMonitorSimpleTest.cpp
 )
 
-add_test(NAME ${BINARY} COMMAND ${BINARY})
+add_test(NAME EnergyMonitorSimple_test COMMAND EnergyMonitorSimple_test)
 
-target_include_directories(${BINARY} PRIVATE
-${CMAKE_SOURCE_DIR}/include
-# ${CMAKE_SOURCE_DIR}/src
+target_link_libraries(EnergyMonitorSimple_test PUBLIC 
+${CMAKE_PROJECT_NAME} 
+gtest
 )
 
-target_link_libraries(${BINARY} PUBLIC 
+################################################################################
+set(NEW_TEST EnergyMonitorMediator_test)
+add_executable(EnergyMonitorMediator_test
+EnergyMonitorMediatorTest.cpp
+)
+
+add_test(NAME ${NEW_TEST} COMMAND ${NEW_TEST})
+
+target_link_libraries(${NEW_TEST} PUBLIC 
+${CMAKE_PROJECT_NAME} 
+gtest
+)
+
+################################################################################
+set(NEW_TEST EnergyMonitorMediatorDataManager_test)
+add_executable(EnergyMonitorMediatorDataManager_test
+EnergyMonitorMediatorDataManagerTest.cpp
+)
+
+add_test(NAME ${NEW_TEST} COMMAND ${NEW_TEST})
+
+target_link_libraries(${NEW_TEST} PUBLIC 
 ${CMAKE_PROJECT_NAME} 
 gtest
 )
