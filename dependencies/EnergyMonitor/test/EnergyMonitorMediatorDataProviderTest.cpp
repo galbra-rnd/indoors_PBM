@@ -3,7 +3,7 @@
 #include "EnergyMonitor.hpp"
 
 /** 
- * EnergyMonitorMediatorDataManagerTest test the IEnergyMonitorMediatorDataManager.
+ * EnergyMonitorMediatorDataManagerTest test the IEnergyMonitorMediatorDataProvider.
  * An interface EnergyMonitorMediator expose for the Behavior trees.
  */
 
@@ -12,7 +12,7 @@
  * This simple test has two parts: \n
  * Test:
  * * Insert new data using the IEnergyMonitorMediator interface. This interface will be exposed to EnergyMonitor. Through it, new data is inserted.
- * * Perform some evaluation inside a TreeNode, and set new mission status using the IEnergyMonitorMediatorDataManager interface, that EnergyMonitor expose to Behavior trees.
+ * * Perform some evaluation inside a TreeNode, and set new mission status using the IEnergyMonitorMediatorDataProvider interface, that EnergyMonitor expose to Behavior trees.
  * 
  */
 TEST(EnergyMonitorMediatorDataManagerTest, GetBatteryTimeEstimation)
@@ -29,10 +29,10 @@ TEST(EnergyMonitorMediatorDataManagerTest, GetBatteryTimeEstimation)
   em->SetBatteryEstimation(estimation); /** @brief Insert new data. Could be ros data. */
 
   /**
-   * @brief This getter has IEnergyMonitorMediatorDataManager of EnergyMonitorMediator. It is for Behavior trees.
+   * @brief This getter has IEnergyMonitorMediatorDataProvider of EnergyMonitorMediator. It is for Behavior trees.
    * 
    */
-  auto getter = std::dynamic_pointer_cast<IEnergyMonitorMediatorDataManager>(em);
+  auto getter = std::dynamic_pointer_cast<IEnergyMonitorMediatorDataProvider>(em);
 
   /**
    * @brief Simple evaluation

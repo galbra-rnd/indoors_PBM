@@ -1,10 +1,10 @@
 #pragma once
 
 #include "IEnergyMonitorMediator.hpp"
-#include "IEnergyMonitorMediatorDataManager.hpp"
+#include "IEnergyMonitorMediatorDataProvider.hpp"
 class EnergyMonitorMediator
     : public IEnergyMonitorMediator,
-      public IEnergyMonitorMediatorDataManager
+      public IEnergyMonitorMediatorDataProvider
 {
 public:
     /**

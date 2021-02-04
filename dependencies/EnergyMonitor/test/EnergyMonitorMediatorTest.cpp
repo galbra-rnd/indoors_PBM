@@ -21,7 +21,7 @@ TEST(EnergyMonitorMediatorTest, GetBatteryTimeEstimation)
 
   // Run
   em->SetBatteryEstimation(stimation);
-  auto getter = std::dynamic_pointer_cast<IEnergyMonitorMediatorDataManager>(em);
+  auto getter = std::dynamic_pointer_cast<IEnergyMonitorMediatorDataProvider>(em);
 
   // Test
   ASSERT_EQ(getter->GetTimeEstimation(DataMonitoringType::BatteryTimeLeft), stimation);

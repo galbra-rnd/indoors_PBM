@@ -6,10 +6,10 @@
  * @brief Interface exposing relevant information for Behavior-tree nodes.
  * 
  */
-class IEnergyMonitorMediatorDataManager
+class IEnergyMonitorMediatorDataProvider
 {
 public:
     virtual float GetTimeEstimation(DataMonitoringType data_type) = 0;
     virtual void SetMissionAvailability(MissionsAvailable mission, MISSION status) = 0;
-    virtual ~IEnergyMonitorMediatorDataManager(){};
+    virtual ~IEnergyMonitorMediatorDataProvider(){};
 };

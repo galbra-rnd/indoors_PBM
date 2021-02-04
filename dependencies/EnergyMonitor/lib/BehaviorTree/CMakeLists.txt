@@ -38,12 +38,15 @@ endif()
 
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
+
 #---- project configuration ----
-if(${CMAKE_BUILD_TYPE}=Debug)
+
+if("${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
+    message(STATUS "Build tutorials and examples")
     option(BUILD_EXAMPLES   "Build tutorials and examples" ON)    
 else()
     option(BUILD_EXAMPLES   "Build tutorials and examples" OFF)    
-endif(${CMAKE_BUILD_TYPE}=Debug)
+endif("${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
 
 option(BUILD_UNIT_TESTS "Build the unit tests" OFF)
 option(BUILD_TOOLS "Build commandline tools" ON)

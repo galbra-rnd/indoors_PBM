@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.0.2)
-project(energy_monitor VERSION "0.0.01")
+project(energy_monitor VERSION "0.0.02")
 
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
 
@@ -14,6 +14,8 @@ add_subdirectory(lib/BehaviorTree)
 set(SOURCES
 ${CMAKE_SOURCE_DIR}/src/EnergyMonitor.cpp
 ${CMAKE_SOURCE_DIR}/src/EnergyMonitorMediator/EnergyMonitorMediator.cpp
+
+${CMAKE_SOURCE_DIR}/src/TreeNodes/IsBatteryOkConditionNode.cpp
 )
 
 add_library(${PROJECT_NAME} 

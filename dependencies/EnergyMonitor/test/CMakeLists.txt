@@ -25,7 +25,7 @@ gtest
 ################################################################################
 set(NEW_TEST EnergyMonitorMediatorDataManager_test)
 add_executable(EnergyMonitorMediatorDataManager_test
-EnergyMonitorMediatorDataManagerTest.cpp
+EnergyMonitorMediatorDataProviderTest.cpp
 )
 
 add_test(NAME ${NEW_TEST} COMMAND ${NEW_TEST})
@@ -33,4 +33,18 @@ add_test(NAME ${NEW_TEST} COMMAND ${NEW_TEST})
 target_link_libraries(${NEW_TEST} PUBLIC 
 ${CMAKE_PROJECT_NAME} 
 gtest
+)
+
+################################################################################
+set(NEW_TEST EnergyMonitorTree_test)
+add_executable(EnergyMonitorTree_test
+EnergyMonitorTreeTest.cpp
+)
+
+add_test(NAME ${NEW_TEST} COMMAND ${NEW_TEST})
+target_include_directories(${NEW_TEST} PUBLIC mocks)
+target_link_libraries(${NEW_TEST} PUBLIC 
+${CMAKE_PROJECT_NAME} 
+gtest
+gmock
 )

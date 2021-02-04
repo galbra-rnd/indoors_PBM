@@ -1,5 +1,6 @@
 #pragma once
 #include <memory>
+#include "TreeNodes/IsBatteryOkConditionNode.hpp"
 #include "EnergyMonitorConfig.hpp"
 #include "IEnergyMonitor.hpp"
 class EnergyMonitor : public IEnergyMonitor
