@@ -9,7 +9,8 @@
 class IEnergyMonitorMediatorDataProvider
 {
 public:
+    virtual const ThresholdValues &GetComponentThresholds(const Components component) = 0;
     virtual float GetTimeEstimation(DataMonitoringType data_type) = 0;
-    virtual void SetMissionAvailability(MissionsAvailable mission, MISSION status) = 0;
+    virtual bool SetMissionAvailability(MissionsAvailable mission, MISSION status) = 0;
     virtual ~IEnergyMonitorMediatorDataProvider(){};
 };

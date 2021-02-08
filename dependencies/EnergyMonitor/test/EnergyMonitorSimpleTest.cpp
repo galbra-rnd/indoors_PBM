@@ -94,6 +94,43 @@ TEST(EnergyMonitorTest, LoadMissions)
   ASSERT_TRUE(is_found) << "MESSAGE: If false, the No such mission in side mession mediator";
 }
 
+/**
+ * @test LoadComponentThresholds.
+ * Test if loading component thresholds working properly.
+ * 
+ * Setup: \n
+ * * Create a missions vector.
+ * * Create a components threshold dict
+ * * Initiate IEnergyMonitor
+ * 
+ * Run: \n
+ * * Load components into IEnergyMonitor.
+ * 
+ * Test: \n
+ * * see if loaded components apears in IEnergyMonitorMediator
+ */
+TEST(EnergyMonitorTest, LoadComponentThresholds)
+{
+  // Setup
+  std::shared_ptr<IEnergyMonitor> em = std::make_shared<EnergyMonitor>();
+  std::unordered_map<Components, ThresholdValues> components_thresholds;
+  ThresholdValues bat_thresh;
+  bat_thresh.red = 250;
+  bat_thresh.orange = 300;
+  bat_thresh.green = 500;
+  components_thresholds[Components::BATTERY_TIME] = bat_thresh;
+
+  // Run
+  em->LoadThresholdValues(components_thresholds);
+
+  // Test
+  auto loaded_missions = em->GetMissions();
+
+  std::unordered_map<Components, ThresholdValues>::const_iterator got = loaded_missions.mission_thresholds.find(Components::BATTERY_TIME);
+
+  ASSERT_NE(got, loaded_missions.mission_thresholds.end()) << "not found";
+}
+
 int main(int argc, char **argv)
 {
   ::testing::InitGoogleTest(&argc, argv);

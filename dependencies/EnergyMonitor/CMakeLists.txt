@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.0.2)
-project(energy_monitor VERSION "0.0.02")
+project(energy_monitor VERSION "0.0.03")
 
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
 
@@ -16,6 +16,7 @@ ${CMAKE_SOURCE_DIR}/src/EnergyMonitor.cpp
 ${CMAKE_SOURCE_DIR}/src/EnergyMonitorMediator/EnergyMonitorMediator.cpp
 
 ${CMAKE_SOURCE_DIR}/src/TreeNodes/IsBatteryOkConditionNode.cpp
+${CMAKE_SOURCE_DIR}/src/TreeNodes/IsGoHomeOkConditionNode.cpp
 )
 
 add_library(${PROJECT_NAME} 

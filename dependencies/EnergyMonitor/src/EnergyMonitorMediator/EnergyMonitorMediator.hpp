@@ -8,6 +8,12 @@ class EnergyMonitorMediator
 {
 public:
     /**
+     * @brief IEnergyMonitorMediator::LoadThresholdValues implementation.
+     * 
+     * @param mission_thresholds - const std::unordered_map<MissionsAvailable, ThresholdValues> & filled with threshold per each mission
+     */
+    void LoadThresholdValues(const std::unordered_map<Components, ThresholdValues> &mission_thresholds) override;
+    /**
      * @brief IEnergyMonitorMediator::LoadMissions implementation.
      * 
      * @param[in] missions_to_load - const std::vector<MissionsAvailable> & of new missions to monitor.
@@ -20,8 +26,10 @@ public:
      * 
      * @param[in] mission - MissionsAvailable for setting its availability.
      * @param[in] status - Setting a new MISSION availability.
+     * @return true - mission exist in dict
+     * @return false - otherwise 
      */
-    void SetMissionAvailability(MissionsAvailable mission, MISSION status) override;
+    bool SetMissionAvailability(MissionsAvailable mission, MISSION status) override;
 
     /**
      * @brief Set the Battery Estimation object
@@ -56,6 +64,14 @@ public:
      * @return float  - time estimation fo requested data-type.
      */
     float GetTimeEstimation(DataMonitoringType data_type) override;
+
+    /**
+     * @brief Get the Component Thresholds object
+     * 
+     * @param component 
+     * @return const ThresholdValues& 
+     */
+    const ThresholdValues &GetComponentThresholds(const Components component) override;
 
     EnergyMonitorMediator(/* args */);
     ~EnergyMonitorMediator();

@@ -17,6 +17,6 @@ public:
     BT::NodeStatus tick() override;
 
 private:
-    float MIN_BATTERY_ESTIMATION_THRESH = 1; /** @brief Minutes left until battery is completely dead. @todo Set this threshold from the DataProvider and construct time.*/
+    ThresholdValues m_Thresh;
     std::shared_ptr<IEnergyMonitorMediatorDataProvider> m_DataProvider;
 };

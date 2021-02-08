@@ -1,11 +1,19 @@
 #pragma once
 #include <memory>
 #include "TreeNodes/IsBatteryOkConditionNode.hpp"
+#include "TreeNodes/IsGoHomeOkConditionNode.hpp"
 #include "EnergyMonitorConfig.hpp"
 #include "IEnergyMonitor.hpp"
 class EnergyMonitor : public IEnergyMonitor
 {
 public:
+    /**
+     * @brief IEnergyMonitor::LoadThresholdValues implementation.
+     * 
+     * @param mission_thresholds const std::unordered_map<Components, ThresholdValues> & filled with RED,ORANGE,GREEN threshold values per component
+     */
+    void LoadThresholdValues(const std::unordered_map<Components, ThresholdValues> &mission_thresholds) override;
+
     /**
      * @brief IEnergyMonitor::LoadMissions implementation.
      * 

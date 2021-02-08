@@ -1,5 +1,10 @@
 #include "EnergyMonitor.hpp"
 
+void EnergyMonitor::LoadThresholdValues(const std::unordered_map<Components, ThresholdValues> &mission_thresholds)
+{
+    m_energy_monitor_mediator->LoadThresholdValues(mission_thresholds);
+}
+
 void EnergyMonitor::LoadMissions(const std::vector<MissionsAvailable> &missions_to_load)
 {
     m_energy_monitor_mediator->LoadMissions(missions_to_load);
