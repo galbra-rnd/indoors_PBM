@@ -2,3 +2,4 @@ dependencies/EnergyMonitor/build
 build
 dependencies/EnergyMonitor/docs/latex
 dependencies/EnergyMonitor/docs/html
+.vscode/

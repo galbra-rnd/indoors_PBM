@@ -4,8 +4,10 @@ EnergyMonitorSimpleTest.cpp
 
 add_test(NAME EnergyMonitorSimple_test COMMAND EnergyMonitorSimple_test)
 
+# message(FATAL_ERROR ${CMAKE_CURRENT_SOURCE_DIR})
+
 target_link_libraries(EnergyMonitorSimple_test PUBLIC 
-${CMAKE_PROJECT_NAME} 
+energy_monitor 
 gtest
 )
 
@@ -18,7 +20,7 @@ EnergyMonitorMediatorTest.cpp
 add_test(NAME ${NEW_TEST} COMMAND ${NEW_TEST})
 
 target_link_libraries(${NEW_TEST} PUBLIC 
-${CMAKE_PROJECT_NAME} 
+energy_monitor
 gtest
 )
 
@@ -31,7 +33,7 @@ EnergyMonitorMediatorDataProviderTest.cpp
 add_test(NAME ${NEW_TEST} COMMAND ${NEW_TEST})
 
 target_link_libraries(${NEW_TEST} PUBLIC 
-${CMAKE_PROJECT_NAME} 
+energy_monitor
 gtest
 )
 
@@ -42,9 +44,9 @@ EnergyMonitorTreeTest.cpp
 )
 
 add_test(NAME ${NEW_TEST} COMMAND ${NEW_TEST})
-target_include_directories(${NEW_TEST} PUBLIC mocks)
+# target_include_directories(${NEW_TEST} PUBLIC mocks)
 target_link_libraries(${NEW_TEST} PUBLIC 
-${CMAKE_PROJECT_NAME} 
+energy_monitor
 gtest
-gmock
+# gmock
 )

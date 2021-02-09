@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.0.2)
-project(indoors_energy_monitor VERSION "0.0.01")
+project(indoors_pbm VERSION "0.0.01")
 
 ## Compile as C++11, supported in ROS Kinetic and newer
 # add_compile_options(-std=c++11)
@@ -13,6 +13,11 @@ find_package(catkin REQUIRED COMPONENTS
   rospy
 )
 
+## Adding BehaviorTrees as subdir.
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+add_subdirectory(dependencies/lib/BehaviorTree)
+
+add_subdirectory(dependencies/EnergyMonitor)
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
 
