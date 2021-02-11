@@ -1,0 +1,11 @@
+/PBM:
+  {
+    spin_freq: 1,
+    bit_freq: 1,
+    topics_to_subscribe:
+      {
+        battery_estimation: "/battery_estimator/time_left_secs",
+        dist_from_home: "/path_planner/out/dist_from_home",
+      },
+    available_missions: ["FLY", "GO_HOME"],
+  }

@@ -1,0 +1,7 @@
+/PBM/thresholds:
+  {
+    battery_threshold: { "red": 400, "orange": 800, "green": 1200 },
+    tth_threshold: { "red": 400, "orange": 800, "green": 1200 },
+  }
+
+/PBM/factors: { time_to_home: 5 }

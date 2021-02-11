@@ -1,6 +1,28 @@
 cmake_minimum_required(VERSION 3.0.2)
 project(indoors_pbm VERSION "0.0.01")
 
+if(NOT WIN32)
+  string(ASCII 27 Esc)
+  set(ColourReset "${Esc}[m")
+  set(ColourBold  "${Esc}[1m")
+  set(Red         "${Esc}[31m")
+  set(Green       "${Esc}[32m")
+  set(Yellow      "${Esc}[33m")
+  set(Blue        "${Esc}[34m")
+  set(Magenta     "${Esc}[35m")
+  set(Cyan        "${Esc}[36m")
+  set(White       "${Esc}[37m")
+  set(BoldRed     "${Esc}[1;31m")
+  set(BoldGreen   "${Esc}[1;32m")
+  set(BoldYellow  "${Esc}[1;33m")
+  set(BoldBlue    "${Esc}[1;34m")
+  set(BoldMagenta "${Esc}[1;35m")
+  set(BoldCyan    "${Esc}[1;36m")
+  set(BoldWhite   "${Esc}[1;37m")
+endif()
+
+message(STATUS "${BoldCyan}${PROJECT_NAME} version: ${PROJECT_VERSION}${ColourReset}")
+
 ## Compile as C++11, supported in ROS Kinetic and newer
 # add_compile_options(-std=c++11)
 
@@ -11,6 +33,8 @@ SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
   rospy
+  roscpp
+  indoors_common
 )
 
 ## Adding BehaviorTrees as subdir.
@@ -121,8 +145,11 @@ catkin_package(
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
 include_directories(
-# include
+  include
+  ${CMAKE_CURRENT_SOURCE_DIR}/src
   ${catkin_INCLUDE_DIRS}
+  ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/EnergyMonitor/include
+  ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/lib
 )
 
 ## Declare a C++ library
@@ -138,7 +165,18 @@ include_directories(
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
-# add_executable(${PROJECT_NAME}_node src/indoors_energy_monitor_node.cpp)
+
+add_executable(${PROJECT_NAME}_node 
+src/indoors_pbm_node.cpp
+src/ROSHelpers/bit/Bit.cpp
+
+${CMAKE_CURRENT_SOURCE_DIR}/src/Pbm/PbmBootstrapper.cpp
+
+${CMAKE_CURRENT_SOURCE_DIR}/src/ROSHelpers/ros_params_initiations.cpp
+${CMAKE_CURRENT_SOURCE_DIR}/src/ROSHelpers/ros_publishers_initiation.cpp
+${CMAKE_CURRENT_SOURCE_DIR}/src/ROSHelpers/ros_subscribers_initiation.cpp
+
+)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -148,12 +186,18 @@ include_directories(
 
 ## Add cmake target dependencies of the executable
 ## same as for the library above
-# add_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(${PROJECT_NAME}_node 
+  ${${PROJECT_NAME}_EXPORTED_TARGETS} 
+  ${catkin_EXPORTED_TARGETS} 
+  energy_monitor)
 
 ## Specify libraries to link a library or executable target against
-# target_link_libraries(${PROJECT_NAME}_node
-#   ${catkin_LIBRARIES}
-# )
+target_link_libraries(${PROJECT_NAME}_node
+  ${catkin_LIBRARIES}
+  energy_monitor
+)
+
+configure_file(config/cmake/PinkBoxMonitorConfig.h.in ${PROJECT_SOURCE_DIR}/include/PinkBoxMonitorConfig.h)
 
 #############
 ## Install ##
