@@ -40,14 +40,14 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 
 #---- project configuration ----
+# if("${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
+#     message(AUTHOR_WARNING ${PROJECT_NAME} " build tutorials and examples")
+#     option(BUILD_EXAMPLES   "Build tutorials and examples" ON)    
+# else()
+#     option(BUILD_EXAMPLES   "Build tutorials and examples" OFF)    
+# endif("${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
 
-if("${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
-    message(AUTHOR_WARNING ${PROJECT_NAME} " build tutorials and examples")
-    option(BUILD_EXAMPLES   "Build tutorials and examples" ON)    
-else()
-    option(BUILD_EXAMPLES   "Build tutorials and examples" OFF)    
-endif("${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
-
+option(BUILD_EXAMPLES   "Build tutorials and examples" OFF)    
 option(BUILD_UNIT_TESTS "Build the unit tests" OFF)
 option(BUILD_TOOLS "Build commandline tools" ON)
 option(BUILD_SHARED_LIBS "Build shared libraries" ON)

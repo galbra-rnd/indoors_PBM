@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root main_tree_to_execute = "MainTreeBatteryTest">
+    <BehaviorTree ID="MainTreeBatteryTest">
+        <ReactiveSequence name="root_sequence">
+            <IsBatteryOk name="IS battery Ok ConditionNode"/>
+            <IsGoHomeOkConditionNode name="Is GoHome OK ConditionNode"/>
+        </ReactiveSequence>
+    </BehaviorTree>
+</root>

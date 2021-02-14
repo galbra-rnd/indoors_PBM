@@ -1,5 +1,13 @@
 #include "Pbm/PbmBootstrapper.hpp"
 
+/**
+ * @brief Initiate module subscribers.
+ * 
+ * @param pbmbs PbmBootStrapper & a reference to the PinkBox module.
+ * @param nh ros::NodeHandle & used for subscribing to other ros nodes
+ * @return true 
+ * @return false 
+ */
 bool init_subscribers(PbmBootStrapper &pbmbs, ros::NodeHandle &nh)
 {
 
@@ -16,10 +24,11 @@ bool init_subscribers(PbmBootStrapper &pbmbs, ros::NodeHandle &nh)
 
     pbmbs.m_subscribers.push_back(nh.subscribe<std_msgs::Float32>(pbmbs.m_subscribers_topic[PBM_SUBSCRIBERS_TOPIC::DIST_FROM_HOME], 1, [&](const std_msgs::Float32ConstPtr &msg) {
         /**
-         * @brief Time to home calculation:
-         * TTH  \f$=/frac{dist to home}{vehicle velocity}\timesfactor\f$
+         * @brief Time to home calculation: \n
+         * \f$ TTH =\frac{DistToHome}{VehicleVelocity}\times factor\f$
          * 
          */
+        
         float time_to_home;
 
         float distance_to_home = msg->data;

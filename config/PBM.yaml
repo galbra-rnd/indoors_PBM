@@ -5,7 +5,7 @@
     topics_to_subscribe:
       {
         battery_estimation: "/battery_estimator/time_left_secs",
-        dist_from_home: "/path_planner/out/dist_from_home",
+        dist_to_home: "/path_planner/out/dist_from_home",
       },
-    available_missions: ["FLY", "GO_HOME"],
+    available_policies: { "p1": "config/policies/p1", "p2": "" },
   }

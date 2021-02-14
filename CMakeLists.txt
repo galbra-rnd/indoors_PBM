@@ -41,7 +41,16 @@ find_package(catkin REQUIRED COMPONENTS
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 add_subdirectory(dependencies/lib/BehaviorTree)
 
+find_package(yaml-cpp)
+
+if(NOT ${yaml-cpp_FOUND})
+  add_subdirectory(dependencies/lib/yaml-cpp)  
+endif()
+
+
+
 add_subdirectory(dependencies/EnergyMonitor)
+
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
 
@@ -150,6 +159,7 @@ include_directories(
   ${catkin_INCLUDE_DIRS}
   ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/EnergyMonitor/include
   ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/lib
+  ${yaml-cpp_INCLUDE_DIRS}
 )
 
 ## Declare a C++ library
@@ -176,6 +186,7 @@ ${CMAKE_CURRENT_SOURCE_DIR}/src/ROSHelpers/ros_params_initiations.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/src/ROSHelpers/ros_publishers_initiation.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/src/ROSHelpers/ros_subscribers_initiation.cpp
 
+${CMAKE_CURRENT_SOURCE_DIR}/src/utils/converters.cpp
 )
 
 ## Rename C++ executable without prefix
@@ -195,6 +206,7 @@ add_dependencies(${PROJECT_NAME}_node
 target_link_libraries(${PROJECT_NAME}_node
   ${catkin_LIBRARIES}
   energy_monitor
+  yaml-cpp
 )
 
 configure_file(config/cmake/PinkBoxMonitorConfig.h.in ${PROJECT_SOURCE_DIR}/include/PinkBoxMonitorConfig.h)

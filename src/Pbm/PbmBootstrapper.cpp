@@ -29,10 +29,11 @@ bool PbmBootStrapper::SetCommandService(indoors_common::Cmd::Request &req, indoo
     return true;
 }
 
-void PbmBootStrapper::SetPolicy(const char *policy)
+void PbmBootStrapper::SetPolicy(const std::string &policy)
 {
-    if (policy != nullptr)
+    if (policy.size() > 0)
     {
+        std::cout << policy << '\n';
         m_policy = policy;
         m_is_policy_set = true;
     }
@@ -40,12 +41,50 @@ void PbmBootStrapper::SetPolicy(const char *policy)
 
 void PbmBootStrapper::register_all_nodes(std::shared_ptr<IEnergyMonitorMediatorDataProvider> energy_data_provider)
 {
-    IsBatteryOk batteryOk_node("IsBatteryOk", energy_data_provider);
-    m_factory.registerSimpleCondition("IsBatteryOk", std::bind(&IsBatteryOk::tick, &batteryOk_node));
+    // IsBatteryOk batteryOk_node("IsBatteryOk", energy_data_provider);
+    auto batteryOk_node = std::make_shared<IsBatteryOk>("IsBatteryOk", energy_data_provider);
+    m_factory.registerSimpleCondition("IsBatteryOk", std::bind(&IsBatteryOk::tick, batteryOk_node));
+
+    auto goHomeOkConditionNode_node = std::make_shared<IsGoHomeOkConditionNode>("IsGoHomeOkConditionNode", energy_data_provider);
+    m_factory.registerSimpleCondition("IsGoHomeOkConditionNode", std::bind(&IsGoHomeOkConditionNode::tick, goHomeOkConditionNode_node));
 }
 
-void PbmBootStrapper::load_missions()
+void PbmBootStrapper::load_policy(int policy)
 {
+    if (m_ros_params.loaded_policies.size() < policy)
+    {
+        ROS_ERROR_STREAM("No such policy loaded. There are only " << m_ros_params.loaded_policies.size() << " policies loaded.");
+        return;
+    }
+
+    std::string policy_base = PROJECT_SOURCE_DIR;
+
+    std::string policy_setting = policy_base + "/" + m_ros_params.loaded_policies[policy] + "/Policy.yaml";
+    YAML::Node config = YAML::LoadFile(policy_setting);
+
+    load_thresholds(config["thresholds"]);
+    load_factors(config["factors"]);
+    load_missions(config["available_missions"]);
+
+    std::string policy_behavior = policy_base + "/" + m_ros_params.loaded_policies[policy] + "/Policy.xml";
+    SetPolicy(policy_behavior.c_str());
+}
+
+void PbmBootStrapper::load_factors(const YAML::Node &factors)
+{
+    auto factors_map = factors.as<std::map<std::string, float>>();
+    for (const auto &i : factors_map)
+    {
+        if (i.first == "time_to_home")
+            m_ros_params.factors.time_to_home = i.second;
+        ROS_INFO_STREAM(i.first << " " << i.second);
+    }
+}
+
+void PbmBootStrapper::load_missions(const YAML::Node &missions)
+{
+    m_available_missions = missions.as<std::vector<std::string>>();
+
     std::vector<MissionsAvailable> loaded_missions;
     for (const auto &mission : m_available_missions)
     {
@@ -64,27 +103,34 @@ void PbmBootStrapper::load_missions()
     m_energy_data_mediator->LoadMissions(loaded_missions);
 }
 
-void PbmBootStrapper::load_thresholds()
+void PbmBootStrapper::load_thresholds(const YAML::Node &thresholds)
 {
-    /**
-     * @todo Get thresholds from parameters
-     * 
-     */
-    // int RED_THRESH = 250;
-    // int GREEN_THRESH = 500;
-
-    // ThresholdValues bat_thresh;
-    // bat_thresh.red = RED_THRESH;
-    // bat_thresh.orange = 300;
-    // bat_thresh.green = GREEN_THRESH;
-    // m_components_thresholds[Components::BATTERY_TIME] = bat_thresh;
-
+    for (const auto &threshold : thresholds)
+    {
+        auto key = threshold.first.as<std::string>();
+        ROS_INFO_STREAM(key);
+        if (key == "battery_threshold")
+            handle_battery_thresholds(threshold.second, *this);
+        if (key == "tth_threshold")
+            handle_tth_threshold(threshold.second, *this);
+    }
     m_energy_data_mediator->LoadThresholdValues(m_components_thresholds);
 }
 
+void PbmBootStrapper::createTree()
+{
+    // Trees are created at deployment-time (i.e. at run-time, but only once at the beginning).
+    // The currently supported format is XML.
+    // IMPORTANT: when the object "tree" goes out of scope, all the TreeNodes are destroyed
+    if (m_is_policy_set)
+    {
+        ROS_INFO_STREAM(m_policy);
+        m_generated_tree = m_factory.createTreeFromFile(m_policy);
+    }
+}
 void PbmBootStrapper::handel_mission_data(const Missions &missions_data)
 {
-    publish_current_missions_status(missions_data,*this);
+    publish_current_missions_status(missions_data, *this);
 }
 
 void PbmBootStrapper::init()
@@ -101,8 +147,8 @@ void PbmBootStrapper::init()
    */
     m_energy_data_mediator = energy_monitor;
 
-    load_thresholds();
-    load_missions();
+    load_policy(0);
+
     /**
    * @brief This IEnergyMonitorMediatorDataProvider have acces to inserted data.
    * And can change MissionAvailability according to tests performed in TreeNodes.
@@ -111,13 +157,8 @@ void PbmBootStrapper::init()
     std::shared_ptr<IEnergyMonitorMediatorDataProvider> energy_data_provider = energy_monitor;
     register_all_nodes(std::move(energy_data_provider));
 
-    // Trees are created at deployment-time (i.e. at run-time, but only once at the beginning).
-    // The currently supported format is XML.
-    // IMPORTANT: when the object "tree" goes out of scope, all the TreeNodes are destroyed
-    if (m_is_policy_set)
-    {
-        m_generated_tree = m_factory.createTreeFromText(m_policy);
-    }
+    createTree();
+
 
     // auto pub = nh.advertise<std_msgs::String>("/bla", 1);
     // std::unordered_map<PBM_PUBLISHERS,ros::Publisher> m_publishers_dict;
@@ -145,7 +186,7 @@ void PbmBootStrapper::Spin()
     catch (const std::exception &e)
     {
         ROS_ERROR_STREAM(__PRETTY_FUNCTION__ << "::" << e.what());
-        m_Bithandler.SetBitLevel(BASE + 1);
+        m_Bithandler.SetBitMessage(BASE + 1);
         std::cerr << e.what() << '\n';
     }
 }
@@ -153,24 +194,6 @@ void PbmBootStrapper::Spin()
 PbmBootStrapper::PbmBootStrapper(ros::NodeHandle &nh)
     : m_nh(nh)
 {
-
-    //     /**
-    //    * @brief Create the most simple Behavior tree.
-    //    * This tree contain's an empty implementation of IsBatteryOk Node.
-    //    *
-    //    */
-    //     static const char *xml_text = R"(
-
-    //   <root main_tree_to_execute = "MainTreeBatteryTest" >
-
-    //       <BehaviorTree ID="MainTreeBatteryTest">
-    //           <ReactiveSequence name="root_sequence">
-    //               <IsBatteryOk   name="IS battery Ok ConditionNode"/>
-    //           </ReactiveSequence>
-    //       </BehaviorTree>
-
-    //   </root>
-    //   )";
 
     // report version
     ROS_INFO_STREAM(PROJECT_NAME << " Initiated."

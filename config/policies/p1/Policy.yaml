@@ -1,0 +1,9 @@
+{
+  thresholds:
+    {
+      battery_threshold: { "red": 400.0, "orange": 800.0, "green": 1200.0 },
+      tth_threshold: { "red": 0.0, "orange": 0.5, "green": 1.0 }, # Relative threshold. I.E: TTH_est = time_to_home / battery_left [sec]
+    },
+  factors: { time_to_home: 5.0 },
+  available_missions: ["FLY", "GO_HOME"],
+}

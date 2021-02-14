@@ -1,4 +1,5 @@
 #pragma once
+#include <yaml-cpp/yaml.h>
 #include <ros/ros.h>
 #include <std_msgs/String.h>
 #include <std_msgs/Float32.h>
@@ -15,15 +16,18 @@
 #include "TreeNodes/IsBatteryOkConditionNode.hpp"
 #include "TreeNodes/IsGoHomeOkConditionNode.hpp"
 #include "PinkBoxMonitorConfig.h"
+
 class PbmBootStrapper
 {
     friend bool init_params(PbmBootStrapper &, ros::NodeHandle &);
     friend bool init_subscribers(PbmBootStrapper &, ros::NodeHandle &);
     friend bool init_publishers(PbmBootStrapper &, ros::NodeHandle &);
     friend void publish_current_missions_status(const Missions &missions_data, PbmBootStrapper &pbmbs);
+    friend bool handle_battery_thresholds(const YAML::Node &threshold, PbmBootStrapper &pbmbs);
+    friend bool handle_tth_threshold(const YAML::Node &threshold, PbmBootStrapper &pbmbs);
 
 private:
-    const char *m_policy;
+    std::string m_policy;
     ros::NodeHandle m_nh;
     /**
      * @brief We use the BehaviorTreeFactory to register our custom nodes
@@ -42,8 +46,17 @@ private:
     ros::ServiceServer m_set_command;
     Bit m_Bithandler;
     RosParams m_ros_params;
-    void load_missions();
-    void load_thresholds();
+    void load_policy(int policy);
+    void load_missions(const YAML::Node &policy_config);
+    void load_thresholds(const YAML::Node &policy_config);
+    void load_factors(const YAML::Node &policy_config);
+    void createTree();
+    /**
+     * @brief Register all nodes available.
+     * Do so will make all policies available.
+     * 
+     * @param energy_data_provider std::shared_ptr<IEnergyMonitorMediatorDataProvider> Through this interface, Our costum behavior nodes can access to ROS data.
+     */
     void register_all_nodes(std::shared_ptr<IEnergyMonitorMediatorDataProvider> energy_data_provider);
 
     /**
@@ -59,9 +72,9 @@ public:
     /**
      * @brief Set the a policy.
      * 
-     * @param policy const char* - representing tree_xml according to BT TreeForming language.
+     * @param policy  - representing tree_xml according to BT TreeForming language.
      */
-    void SetPolicy(const char *policy);
+    void SetPolicy(const std::string &policy);
     bool SetCommandService(indoors_common::Cmd::Request &req, indoors_common::Cmd::Response &res);
     void PublishBIT();
     void Spin();

@@ -3,3 +3,5 @@ build
 dependencies/EnergyMonitor/docs/latex
 dependencies/EnergyMonitor/docs/html
 .vscode/
+docs/doxygen/html/
+docs/doxygen/latex/

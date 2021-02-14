@@ -1,10 +1,8 @@
 <?xml version="1.0"?>
 <launch>
-    <rosparam command="load" file="$(find indoors_pbm)/config/thresholds/thresholds.yaml" />
+    <!-- <rosparam command="load" file="$(find indoors_pbm)/config/thresholds/thresholds.yaml" /> -->
     <rosparam command="load" file="$(find indoors_pbm)/config/PBM.yaml" />
     <node pkg="indoors_pbm" type="indoors_pbm_node" name="PBM" output="screen"/>
 
-    <!-- <rosparam command="load" file="$(find indoors_point_and_go)/conf/PointAndGoAnchor.yaml" />
-    <node pkg="indoors_point_and_go" type="point_and_go_anchor_node" name="PointAndGoAnchorNode" output="screen"/> -->
 </launch>
 

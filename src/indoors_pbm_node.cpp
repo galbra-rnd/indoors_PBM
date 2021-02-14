@@ -1,4 +1,3 @@
-#include <ros/ros.h>
 #include "Pbm/PbmBootstrapper.hpp"
 
 int main(int argc, char **argv)
