@@ -27,7 +27,7 @@ bool EnergyMonitor::SetTimeToHome(float estimation)
 
 EnergyMonitor::EnergyMonitor(/* args */)
 {
-    m_energy_monitor_mediator = std::make_shared<EnergyMonitorMediator>();
+    m_energy_monitor_mediator = std::make_shared<EnergyMonitorMediator>(spdlog::basic_logger_mt("ControlProviderMediator", "/home/msi/logs/gal-log.txt"));
 }
 
 EnergyMonitor::~EnergyMonitor()

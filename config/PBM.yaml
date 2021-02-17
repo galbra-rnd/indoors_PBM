@@ -7,5 +7,6 @@
         battery_estimation: "/battery_estimator/time_left_secs",
         dist_to_home: "/path_planner/out/dist_from_home",
       },
-    available_policies: { "p1": "config/policies/p1", "p2": "" },
+    available_policies:
+      { "p1": "config/policies/p1", "p2": "config/policies/p2" },
   }

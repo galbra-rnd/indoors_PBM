@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<root main_tree_to_execute = "ActiveGoHomePolicy">
+    <BehaviorTree ID="ActiveGoHomePolicy">
+        <ReactiveSequence name="ActiveBatteryPolicy_ReactiveSequence">
+            <Inverter>
+                <IsGoHomeOkConditionNode name="Is GoHome OK ConditionNode"/>
+            </Inverter>
+            <Action ID="GoHomeMockNode" message="Need to go home!!"/>
+            <!-- todo: Implement GoHomeActionNode -->
+        </ReactiveSequence>
+    </BehaviorTree>
+
+</root>

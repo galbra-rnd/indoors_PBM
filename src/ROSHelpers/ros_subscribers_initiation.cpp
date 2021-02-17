@@ -28,14 +28,14 @@ bool init_subscribers(PbmBootStrapper &pbmbs, ros::NodeHandle &nh)
          * \f$ TTH =\frac{DistToHome}{VehicleVelocity}\times factor\f$
          * 
          */
-        
+
         float time_to_home;
 
         float distance_to_home = msg->data;
-        auto vehicle_velocity = pbmbs.m_ros_params.velocity_max_formard;
-        auto factor_time_to_home = pbmbs.m_ros_params.factors.time_to_home;
+        // auto vehicle_velocity = pbmbs.m_ros_params.velocity_max_formard;
+        auto avg_speed = pbmbs.m_ros_params.factors.avg_speed;
 
-        time_to_home = (distance_to_home / vehicle_velocity) * factor_time_to_home;
+        time_to_home = (distance_to_home / avg_speed);
         if (pbmbs.m_energy_data_mediator->SetTimeToHomeEstimation(time_to_home))
         {
             ROS_INFO_STREAM("Successfully inserted new time_to_home estimation data: " << time_to_home);
@@ -43,10 +43,19 @@ bool init_subscribers(PbmBootStrapper &pbmbs, ros::NodeHandle &nh)
         }
         ROS_WARN_STREAM("BAD time_to_home estimation calculation: " << time_to_home);
         ROS_WARN_STREAM("received distance_to_home from pathplanner: " << msg->data);
-        ROS_WARN_STREAM("received vehicle_velocity from parameters: " << vehicle_velocity);
-        ROS_WARN_STREAM("received factor_time_to_home from parameters: " << factor_time_to_home);
+        ROS_WARN_STREAM("received avg_speed from parameters: " << avg_speed);
+        // ROS_WARN_STREAM("received factor_time_to_home from parameters: " << factor_time_to_home);
         ROS_WARN_STREAM("calculated time_to_home: " << time_to_home);
     }));
+
+    for (size_t i = 0; i < pbmbs.m_ros_params.loaded_policies.size(); i++)
+    {
+
+        pbmbs.m_subscribers.push_back(nh.subscribe<std_msgs::Empty>("/PBM/in/load_policy/" + std::to_string(i), 1, [&,i](const std_msgs::EmptyConstPtr &msg) {
+            ROS_INFO_STREAM("Loading policy number: " << i);
+            pbmbs.load_policy(i);
+        }));
+    }
 
     // pg.m_incommingPixleSub = nh.subscribe<geometry_msgs::InertiaStamped>(pg.incomming_pixle_topic, 1, &PointAndGo::pixleCallback, &pg);
     // pg.m_mpc_tracked_set_point_cb_sub = nh.subscribe<geometry_msgs::PoseStamped>(pg.incomming_tracked_set_point_topic, 1, &PointAndGo::mpc_tracked_set_point_cb, &pg);

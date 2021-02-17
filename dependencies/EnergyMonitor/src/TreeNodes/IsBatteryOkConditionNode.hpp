@@ -17,6 +17,13 @@ public:
     BT::NodeStatus tick() override;
 
 private:
+    bool setNewMissionAvailability(MISSION mission_status);
+    /**
+     * @brief Thresholds might change if User change policy in runtime.
+     * 
+     */
+    void load_thresh();
+    MissionsAvailable m_ThisMission{MissionsAvailable::CAN_FLY};
     ThresholdValues m_Thresh;
     std::shared_ptr<IEnergyMonitorMediatorDataProvider> m_DataProvider;
 };

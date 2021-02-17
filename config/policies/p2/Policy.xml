@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<root main_tree_to_execute = "MainTreeActivePolicy">
+    <BehaviorTree ID="MainTreeActivePolicy">
+        <ReactiveSequence name="MainTreeActivePolicy">
+
+            <ReactiveSequence name="ActiveBatteryPolicy_ReactiveSequence">
+                <Fallback name="CanFly_Fallback">
+                    <IsBatteryOk name="IS battery Ok ConditionNode"/>
+                    <Inverter>
+                        <LandActionNode name="This is the Land action Node"/>
+                    </Inverter>
+                </Fallback>
+            </ReactiveSequence>
+
+
+            <ReactiveSequence name="ActiveGoHomePolicy_ReactiveSequence">
+                <Fallback name="GoHome_Fallback">
+                    <IsGoHomeOkConditionNode name="Is GoHome OK ConditionNode"/>
+                    <Inverter>
+                        <GoHomeActionNode name="This is the GoHome action Node"/>
+                    </Inverter>
+                </Fallback>
+            </ReactiveSequence>
+
+        </ReactiveSequence>
+    </BehaviorTree>
+</root>

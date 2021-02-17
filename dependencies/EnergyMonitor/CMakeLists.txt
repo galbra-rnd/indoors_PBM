@@ -25,6 +25,11 @@ add_library(${PROJECT_NAME}
 add_dependencies(${PROJECT_NAME} behaviortree_cpp_v3)
 target_link_libraries(${PROJECT_NAME} behaviortree_cpp_v3)
 
+add_dependencies(${PROJECT_NAME} spdlog) 
+target_link_libraries(${PROJECT_NAME} ${CMAKE_SOURCE_DIR}/../devel/lib/libspdlogd.a)
+target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../lib/spdlog/include)
+
+
 set_target_properties(${PROJECT_NAME} PROPERTIES VERSION ${PROJECT_VERSION})
 
 set_target_properties(${PROJECT_NAME} PROPERTIES PUBLIC_HEADER include/EnergyMonitor.hpp)

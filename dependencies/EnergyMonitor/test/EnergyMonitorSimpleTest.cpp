@@ -75,7 +75,7 @@ TEST(EnergyMonitorTest, LoadMissions)
 {
   // Setup
   std::shared_ptr<IEnergyMonitor> em = std::make_shared<EnergyMonitor>();
-  std::vector<MissionsAvailable> missions{MissionsAvailable::FLY};
+  std::vector<MissionsAvailable> missions{MissionsAvailable::CAN_FLY};
 
   // Run
   em->LoadMissions(missions);
@@ -85,7 +85,7 @@ TEST(EnergyMonitorTest, LoadMissions)
   auto loaded_missions = em->GetMissions();
   for (auto &mission : loaded_missions.missions)
   {
-    if (mission.mission == MissionsAvailable::FLY)
+    if (mission.mission == MissionsAvailable::CAN_FLY)
     {
       ASSERT_EQ(mission.state, MISSION::GREEN);
       is_found = true;

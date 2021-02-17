@@ -4,7 +4,7 @@
 
 TEST(EnergyMonitorMediatorTest, SetBatteryTimeEstimation)
 {
-  std::shared_ptr<IEnergyMonitorMediator> em = std::make_shared<EnergyMonitorMediator>();
+  std::shared_ptr<IEnergyMonitorMediator> em = std::make_shared<EnergyMonitorMediator>(spdlog::stdout_color_mt("EnergyMonitorMediator"));
   ASSERT_TRUE(em->SetBatteryEstimation(350));
 }
 
@@ -16,7 +16,7 @@ TEST(EnergyMonitorMediatorTest, SetBatteryTimeEstimation)
 TEST(EnergyMonitorMediatorTest, GetBatteryTimeEstimation)
 {
   // Setup
-  std::shared_ptr<IEnergyMonitorMediator> em = std::make_shared<EnergyMonitorMediator>();
+  std::shared_ptr<IEnergyMonitorMediator> em = std::make_shared<EnergyMonitorMediator>(spdlog::stdout_color_mt("EnergyMonitorMediator"));
   float stimation = 350;
 
   // Run

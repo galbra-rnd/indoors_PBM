@@ -1,6 +1,8 @@
 
 #include "Pbm/PbmBootstrapper.hpp"
-
+#include <sys/types.h>
+#include <dirent.h>
+#include <sys/stat.h>
 bool handle_battery_thresholds(const YAML::Node &threshold, PbmBootStrapper &pbmbs)
 {
     ThresholdValues bat_time_left_estimation_thresh;
@@ -36,26 +38,34 @@ bool handle_tth_threshold(const YAML::Node &threshold, PbmBootStrapper &pbmbs)
     pbmbs.m_components_thresholds[Components::TIME_TO_HOME] = bat_time_left_estimation_thresh;
     return true;
 };
-// bool adapt_available_policies(std::map<std::string, std::string> loaded_policies_from_params, PbmBootStrapper &pbmbs)
-// {
-//     std::vector<std::string> policies_vector;
-//     for (const auto &policy_path : loaded_policies_from_params)
-//     {
-//         ROS_INFO_STREAM("Loaded policy: " << policy_path.first << ". In path: " << policy_path.second);
-//         pbmbs.m_ros_params.loaded_policies.push_back(policy_path.second);
-//     }
-//     ROS_INFO_STREAM("Loaded policy: " << policies_vector[0]);
-// }
-// /**
-//  * @brief Convert distance from home, into Time to home.
-//  *
-//  * @param[in] distance_to_home float - given from a PathPlanner subscriber.
-//  * @param[out] time_to_home float& - return value.
-//  * @param[in] pbmbs PbmBootStrapper & - a PBM reference for getting the Velocity parameter.
-//  * @return true - if convertion succeeded
-//  * @return false - otherwise.
-//  */
-// bool convert_dist_to_time(float distance_to_home, float &time_to_home, PbmBootStrapper &pbmbs)
-// {
 
-// }
+const std::string get_log_file_name()
+{
+    DIR *dp;
+    int num_of_files = 0;
+    struct dirent *ep;
+    auto homedir = getenv("HOME");
+    
+    strcat(homedir, "/.ros/PBM/");
+
+    dp = opendir(homedir);
+
+    if (dp == NULL)
+    {
+        auto res = mkdir(homedir, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+        dp = opendir(homedir);
+    }
+    if (dp != NULL)
+    {
+        while (ep = readdir(dp))
+            num_of_files++;
+
+        (void)closedir(dp);
+    }
+    num_of_files -= 2; // Reduce the '.' and the '..' files from num_of_files.
+
+    std::string file_name("PBM_log_");
+
+    file_name = homedir + file_name + std::to_string(num_of_files);
+    return file_name;
+}

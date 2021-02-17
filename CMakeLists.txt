@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.0.2)
-project(indoors_pbm VERSION "0.0.01")
+project(indoors_pbm VERSION "0.0.02")
 
 if(NOT WIN32)
   string(ASCII 27 Esc)
@@ -47,9 +47,9 @@ if(NOT ${yaml-cpp_FOUND})
   add_subdirectory(dependencies/lib/yaml-cpp)  
 endif()
 
-
-
+add_subdirectory(dependencies/lib/spdlog)
 add_subdirectory(dependencies/EnergyMonitor)
+add_subdirectory(dependencies/ActionControl)
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -141,7 +141,7 @@ add_subdirectory(dependencies/EnergyMonitor)
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
-#  INCLUDE_DIRS include
+    INCLUDE_DIRS include
 #  LIBRARIES indoors_energy_monitor
 #  CATKIN_DEPENDS cpp rospy
 #  DEPENDS system_lib
@@ -158,8 +158,12 @@ include_directories(
   ${CMAKE_CURRENT_SOURCE_DIR}/src
   ${catkin_INCLUDE_DIRS}
   ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/EnergyMonitor/include
+  ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/ActionControl/include
   ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/lib
   ${yaml-cpp_INCLUDE_DIRS}
+
+  ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/lib/spdlog/include
+
 )
 
 ## Declare a C++ library
@@ -200,13 +204,17 @@ ${CMAKE_CURRENT_SOURCE_DIR}/src/utils/converters.cpp
 add_dependencies(${PROJECT_NAME}_node 
   ${${PROJECT_NAME}_EXPORTED_TARGETS} 
   ${catkin_EXPORTED_TARGETS} 
-  energy_monitor)
+  energy_monitor
+  control_provider
+  )
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(${PROJECT_NAME}_node
   ${catkin_LIBRARIES}
   energy_monitor
+  control_provider
   yaml-cpp
+  spdlog
 )
 
 configure_file(config/cmake/PinkBoxMonitorConfig.h.in ${PROJECT_SOURCE_DIR}/include/PinkBoxMonitorConfig.h)

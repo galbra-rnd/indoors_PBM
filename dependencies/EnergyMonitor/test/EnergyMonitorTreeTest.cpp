@@ -45,7 +45,7 @@ TEST(EnergyMonitorTreeBatteyNodeOnly, BatteryEstimationConditionNode)
   </root>
   )";
   // Setup
-  std::shared_ptr<EnergyMonitorMediator> energy_monitor = std::make_shared<EnergyMonitorMediator>();
+  std::shared_ptr<EnergyMonitorMediator> energy_monitor = std::make_shared<EnergyMonitorMediator>(spdlog::basic_logger_mt("ControlProviderMediator", "/home/msi/logs/gal-log.txt"));
 
   /**
    * @brief This IEnergyMonitorMediator can insert new data into the EnergyMonitorMediator.
@@ -107,14 +107,14 @@ TEST(EnergyMonitorTreeBatteyNodeOnly, BatteryEstimationConditionNode)
 }
 
 /**
- * @test Test if setting bad battery estimation cause mission FLY to become MISSION::RED
+ * @test Test if setting bad battery estimation cause mission CAN_FLY to become MISSION::RED
  * 
  * Setup: \n
  * * Define a tree \n
  * * Create an energy_data_provider \n
  * * Create a tree factory. \n
  * Run: \n
- * * Load FLY mission into IEnergyMonitor.
+ * * Load CAN_FLY mission into IEnergyMonitor.
  * * Create an IsBatteryOk node.
  * * Dependency inject the energy_data_provider
  * * Register this Node into created tree factory.
@@ -143,8 +143,8 @@ TEST(EnergyMonitorTreeBatteyNodeOnlyTest, AvailableMissions)
   </root>
   )";
   // Setup
-  std::shared_ptr<EnergyMonitorMediator> energy_monitor = std::make_shared<EnergyMonitorMediator>();
-  std::vector<MissionsAvailable> missions{MissionsAvailable::FLY, MissionsAvailable::GO_HOME};
+  std::shared_ptr<EnergyMonitorMediator> energy_monitor = std::make_shared<EnergyMonitorMediator>(spdlog::basic_logger_mt("ControlProviderMediator", "/home/msi/logs/gal-log.txt"));
+  std::vector<MissionsAvailable> missions{MissionsAvailable::CAN_FLY, MissionsAvailable::GO_HOME};
 
   /**
    * @brief This IEnergyMonitorMediator can insert new data into the EnergyMonitorMediator.
@@ -217,14 +217,14 @@ TEST(EnergyMonitorTreeBatteyNodeOnlyTest, AvailableMissions)
 }
 
 /**
- * @test Test if setting bad battery estimation cause mission FLY to become MISSION::RED
+ * @test Test if setting bad battery estimation cause mission CAN_FLY to become MISSION::RED
  * 
  * Setup: \n
  * * Define a tree \n
  * * Create an energy_data_provider \n
  * * Create a tree factory. \n
  * Run: \n
- * * Load FLY mission into IEnergyMonitor. \n
+ * * Load CAN_FLY mission into IEnergyMonitor. \n
  * * Load GO_HOME mission into IEnergyMonitor. \n
  * * Create an IsBatteryOk node. \n
  * * Create an ISGoHomeOkConditionNode node. \n
@@ -259,8 +259,8 @@ TEST(EnergyMonitorTreeBatteryAndGoHomeNodesTest, AvailableMissions)
   </root>
   )";
   // Setup
-  std::shared_ptr<EnergyMonitorMediator> energy_monitor = std::make_shared<EnergyMonitorMediator>();
-  std::vector<MissionsAvailable> missions{MissionsAvailable::FLY, MissionsAvailable::GO_HOME};
+  std::shared_ptr<EnergyMonitorMediator> energy_monitor = std::make_shared<EnergyMonitorMediator>(spdlog::basic_logger_mt("ControlProviderMediator", "/home/msi/logs/gal-log.txt"));
+  std::vector<MissionsAvailable> missions{MissionsAvailable::CAN_FLY, MissionsAvailable::GO_HOME};
 
   /**
    * @brief This IEnergyMonitorMediator can insert new data into the EnergyMonitorMediator.

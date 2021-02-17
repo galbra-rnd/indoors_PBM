@@ -1,20 +1,33 @@
 #pragma once
 #include <yaml-cpp/yaml.h>
 #include <ros/ros.h>
+#include <std_msgs/Empty.h>
 #include <std_msgs/String.h>
 #include <std_msgs/Float32.h>
+#include <geometry_msgs/InertiaStamped.h>
 #include <diagnostic_msgs/DiagnosticArray.h>
 #include <diagnostic_msgs/DiagnosticStatus.h>
 #include <diagnostic_msgs/KeyValue.h>
 #include "indoors_common/Cmd.h"
+#include "gmp_command.h"
 #include "ROSHelpers/ros_communication.hpp"
 #include "ROSHelpers/bit/Bit.hpp"
 #include "ROSHelpers/ros_params_containers.hpp"
 #include "EnergyMonitorMediator/EnergyMonitorMediator.hpp"
+#include "ControlProviderMediator.hpp"
 #include "behaviortree_cpp_v3/bt_factory.h"
+#include "utils/topics.hpp"
+#include "spdlog/spdlog.h"
+#include "spdlog/sinks/basic_file_sink.h"
+#include "spdlog/sinks/stdout_color_sinks.h"
 
+///< @brief Costum condition nodes
 #include "TreeNodes/IsBatteryOkConditionNode.hpp"
 #include "TreeNodes/IsGoHomeOkConditionNode.hpp"
+
+///< @brief Costum action nodes
+#include "TreeNodes/LandActionNode.hpp"
+#include "TreeNodes/GoHomeActionNode.hpp"
 #include "PinkBoxMonitorConfig.h"
 
 class PbmBootStrapper
@@ -56,9 +69,17 @@ private:
      * Do so will make all policies available.
      * 
      * @param energy_data_provider std::shared_ptr<IEnergyMonitorMediatorDataProvider> Through this interface, Our costum behavior nodes can access to ROS data.
+     * @param control_provider_mediator 
      */
-    void register_all_nodes(std::shared_ptr<IEnergyMonitorMediatorDataProvider> energy_data_provider);
+    void register_all_nodes(std::shared_ptr<IEnergyMonitorMediatorDataProvider> energy_data_provider,
+                            std::shared_ptr<IControlProviderMediator> control_provider_mediator);
 
+    /**
+     * @brief Fill the control_action_dict with functours.
+     * 
+     * @param control_action_dict 
+     */
+    void register_callbacks(std::unordered_map<ControlAction::Commands, std::function<void()>> &control_action_dict);
     /**
      * @brief This is Pipeline entrance right after three tick.
      * For that moment it does nothing but calling publish_current_missions_status
@@ -67,8 +88,19 @@ private:
      */
     void handel_mission_data(const Missions &missions_data);
     void init();
+    const BT::NodeStatus tick_root_timing_wrapper();
 
 public:
+    /**
+     * @brief Land function to be sent via the LandActionNode, using the IContolProviderMediator.
+     * 
+     */
+    void Land();
+    /**
+     * @brief Land function to be sent via the GoHomeActionNode, using the IContolProviderMediator.
+     * 
+     */
+    void GoHome();
     /**
      * @brief Set the a policy.
      * 

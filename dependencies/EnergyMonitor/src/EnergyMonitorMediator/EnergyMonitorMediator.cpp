@@ -1,11 +1,11 @@
 #include "EnergyMonitorMediator.hpp"
-#include <bits/stdc++.h>
+// #include <bits/stdc++.h>
 
-bool check_estimation_helper(float estimation, const char *calling_func)
+bool check_estimation_helper(float estimation, const char *calling_func, std::shared_ptr<spdlog::logger> logger)
 {
     if (estimation < 0 | std::isinf(estimation))
     {
-        std::cerr << calling_func << ":: Cant use this estimation: " << estimation << " \n";
+        logger->warn(std::string(calling_func) + ":: Cant use this estimation: {} \n", estimation);
         return false;
     }
     return true;
@@ -18,6 +18,11 @@ void EnergyMonitorMediator::LoadThresholdValues(const std::unordered_map<Compone
 
 void EnergyMonitorMediator::LoadMissions(const std::vector<MissionsAvailable> &missions_to_load)
 {
+    while (!m_MissionPossible.missions.empty())
+    {
+        m_MissionPossible.missions.pop_back();
+    }
+
     for (auto &mission_to_load : missions_to_load)
     {
         MissionPossible new_mission;
@@ -38,13 +43,14 @@ bool EnergyMonitorMediator::SetMissionAvailability(MissionsAvailable mission, MI
             return true;
         }
     }
-    std::cout << "No such mission: " << mission_to_string(mission) << "\n";
+    m_logger->warn("No such mission: " + mission_to_string(mission) + "\n");
     return false;
 }
 
 bool EnergyMonitorMediator::SetTimeToHomeEstimation(float estimation)
 {
-    if (!check_estimation_helper(estimation, __PRETTY_FUNCTION__))
+    m_logger->info(std::string(__PRETTY_FUNCTION__) + " Got estimation: {}", estimation);
+    if (!check_estimation_helper(estimation, __PRETTY_FUNCTION__, m_logger))
         return false;
     m_data_monitoring_type[DataMonitoringType::TimeToHome] = estimation;
     return true;
@@ -52,7 +58,8 @@ bool EnergyMonitorMediator::SetTimeToHomeEstimation(float estimation)
 
 bool EnergyMonitorMediator::SetBatteryEstimation(float estimation)
 {
-    if (!check_estimation_helper(estimation, __PRETTY_FUNCTION__))
+    m_logger->info(std::string(__PRETTY_FUNCTION__) + " Got estimation: {}", estimation);
+    if (!check_estimation_helper(estimation, __PRETTY_FUNCTION__, m_logger))
         return false;
 
     m_data_monitoring_type[DataMonitoringType::BatteryTimeLeft] = estimation;
@@ -62,7 +69,6 @@ bool EnergyMonitorMediator::SetBatteryEstimation(float estimation)
 const ThresholdValues &EnergyMonitorMediator::GetComponentThresholds(const Components component)
 {
     return m_MissionPossible.mission_thresholds[component];
-
 }
 
 float EnergyMonitorMediator::GetTimeEstimation(DataMonitoringType data_type)
@@ -74,7 +80,8 @@ Missions &EnergyMonitorMediator::GetMissionsData()
 {
     return m_MissionPossible;
 }
-EnergyMonitorMediator::EnergyMonitorMediator(/* args */)
+EnergyMonitorMediator::EnergyMonitorMediator(std::shared_ptr<spdlog::logger> logger)
+    : m_logger(logger)
 {
 }
 

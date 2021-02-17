@@ -1,6 +1,13 @@
 
 #include "PbmBootstrapper.hpp"
 
+/**
+ * @brief Get the log file name object
+ *  Simple forward declaration.
+ * @return const std::string 
+ */
+const std::string get_log_file_name();
+
 bool PbmBootStrapper::SetCommandService(indoors_common::Cmd::Request &req, indoors_common::Cmd::Response &res)
 {
     // std::string errMsg;
@@ -29,24 +36,54 @@ bool PbmBootStrapper::SetCommandService(indoors_common::Cmd::Request &req, indoo
     return true;
 }
 
+void PbmBootStrapper::Land()
+{
+    ROS_INFO_STREAM("SENDING LAND COMMAND!");
+    geometry_msgs::InertiaStamped msg;
+
+    msg.header.stamp = ros::Time::now();
+    msg.inertia.m = Gmp_Command::string_to_cmd_opcode("LAND");
+
+    m_publishers_dict[PBM_PUBLISHERS::COMMAND_LAND].publish(msg);
+}
+
+void PbmBootStrapper::GoHome()
+{
+    ROS_INFO_STREAM("\n***********************\nMOCK:\nSENDING GoHome COMMAND!\n***********************\n");
+}
+
 void PbmBootStrapper::SetPolicy(const std::string &policy)
 {
     if (policy.size() > 0)
     {
-        std::cout << policy << '\n';
+        ROS_INFO_STREAM("Setting policy: " << policy << "\n");
         m_policy = policy;
         m_is_policy_set = true;
+        return;
     }
+    m_is_policy_set = false;
 }
 
-void PbmBootStrapper::register_all_nodes(std::shared_ptr<IEnergyMonitorMediatorDataProvider> energy_data_provider)
+void PbmBootStrapper::register_callbacks(std::unordered_map<ControlAction::Commands, std::function<void()>> &control_action_dict)
 {
-    // IsBatteryOk batteryOk_node("IsBatteryOk", energy_data_provider);
+    control_action_dict[ControlAction::Commands::Land] = std::bind(&PbmBootStrapper::Land, this);
+    control_action_dict[ControlAction::Commands::GoHome] = std::bind(&PbmBootStrapper::GoHome, this);
+}
+
+void PbmBootStrapper::register_all_nodes(std::shared_ptr<IEnergyMonitorMediatorDataProvider> energy_data_provider,
+                                         std::shared_ptr<IControlProviderMediator> control_provider_mediator)
+{
     auto batteryOk_node = std::make_shared<IsBatteryOk>("IsBatteryOk", energy_data_provider);
     m_factory.registerSimpleCondition("IsBatteryOk", std::bind(&IsBatteryOk::tick, batteryOk_node));
 
     auto goHomeOkConditionNode_node = std::make_shared<IsGoHomeOkConditionNode>("IsGoHomeOkConditionNode", energy_data_provider);
     m_factory.registerSimpleCondition("IsGoHomeOkConditionNode", std::bind(&IsGoHomeOkConditionNode::tick, goHomeOkConditionNode_node));
+
+    auto landActionNode_node = std::make_shared<LandActionNode>("LandActionNode", control_provider_mediator);
+    m_factory.registerSimpleAction("LandActionNode", std::bind(&LandActionNode::tick, landActionNode_node));
+
+    auto goHomeActionNode_node = std::make_shared<GoHomeActionNode>("GoHomeActionNode", control_provider_mediator);
+    m_factory.registerSimpleAction("GoHomeActionNode", std::bind(&GoHomeActionNode::tick, goHomeActionNode_node));
 }
 
 void PbmBootStrapper::load_policy(int policy)
@@ -68,6 +105,8 @@ void PbmBootStrapper::load_policy(int policy)
 
     std::string policy_behavior = policy_base + "/" + m_ros_params.loaded_policies[policy] + "/Policy.xml";
     SetPolicy(policy_behavior.c_str());
+
+    createTree();
 }
 
 void PbmBootStrapper::load_factors(const YAML::Node &factors)
@@ -75,8 +114,8 @@ void PbmBootStrapper::load_factors(const YAML::Node &factors)
     auto factors_map = factors.as<std::map<std::string, float>>();
     for (const auto &i : factors_map)
     {
-        if (i.first == "time_to_home")
-            m_ros_params.factors.time_to_home = i.second;
+        if (i.first == "avg_speed")
+            m_ros_params.factors.avg_speed = i.second;
         ROS_INFO_STREAM(i.first << " " << i.second);
     }
 }
@@ -126,6 +165,8 @@ void PbmBootStrapper::createTree()
     {
         ROS_INFO_STREAM(m_policy);
         m_generated_tree = m_factory.createTreeFromFile(m_policy);
+
+        BT::printTreeRecursively(m_generated_tree.rootNode());
     }
 }
 void PbmBootStrapper::handel_mission_data(const Missions &missions_data)
@@ -138,7 +179,8 @@ void PbmBootStrapper::init()
     init_subscribers(*this, m_nh);
     init_publishers(*this, m_nh);
 
-    std::shared_ptr<EnergyMonitorMediator> energy_monitor = std::make_shared<EnergyMonitorMediator>();
+    auto log_name = get_log_file_name();
+    std::shared_ptr<EnergyMonitorMediator> energy_monitor = std::make_shared<EnergyMonitorMediator>(spdlog::basic_logger_mt("EnergyMonitorMediator", log_name));
 
     /**
    * @brief This IEnergyMonitorMediator can insert new data into the EnergyMonitorMediator.
@@ -147,48 +189,68 @@ void PbmBootStrapper::init()
    */
     m_energy_data_mediator = energy_monitor;
 
-    load_policy(0);
-
     /**
    * @brief This IEnergyMonitorMediatorDataProvider have acces to inserted data.
    * And can change MissionAvailability according to tests performed in TreeNodes.
    * 
    */
     std::shared_ptr<IEnergyMonitorMediatorDataProvider> energy_data_provider = energy_monitor;
-    register_all_nodes(std::move(energy_data_provider));
 
-    createTree();
+    /**
+     * @brief This IControlProviderMediator supplies the Action nodes the ability to callback publishers upon their tick()
+     * 
+     */
+    std::unordered_map<ControlAction::Commands, std::function<void()>> control_action_dict;
+    register_callbacks(control_action_dict);
 
+    
+    // ROS_ERROR_STREAM(homedir);
+    std::shared_ptr<IControlProviderMediator> control_provider_mediator =
+        std::make_shared<ControlProviderMediator>(control_action_dict, spdlog::basic_logger_mt("ControlProviderMediator", log_name));
 
-    // auto pub = nh.advertise<std_msgs::String>("/bla", 1);
-    // std::unordered_map<PBM_PUBLISHERS,ros::Publisher> m_publishers_dict;
-
-    // Test1
-    // float VALID_BATTERY_ESTIMATION = 501; /** Needs to be above ORANGE threshold  */
-    // energy_data_mediator->SetBatteryEstimation(VALID_BATTERY_ESTIMATION);
-
-    // To "execute" a Tree you need to "tick" it.
-    // The tick is propagated to the children based on the logic of the tree.
-    // In this case, the entire sequence is executed, because all the children
-    // of the Sequence return SUCCESS.
-
-    // ASSERT_EQ(tree.tickRoot(), BT::NodeStatus::SUCCESS);
+    register_all_nodes(std::move(energy_data_provider), std::move(control_provider_mediator));
 }
 
 void PbmBootStrapper::Spin()
 {
     try
     {
-        m_generated_tree.tickRoot();
-        auto missions = m_energy_data_mediator->GetMissionsData();
-        handel_mission_data(missions);
+        if (!m_is_policy_set)
+        {
+            ROS_INFO_STREAM_THROTTLE(10, "No loaded policies. Waiting.");
+            m_Bithandler.SetBitMessage(pbm_statuses::BASE + 3);
+        }
+        else
+        {
+            auto tick_res = tick_root_timing_wrapper();
+            auto missions = m_energy_data_mediator->GetMissionsData();
+            handel_mission_data(missions);
+            if (tick_res == BT::NodeStatus::FAILURE)
+            {
+                m_Bithandler.SetBitMessage(pbm_statuses::BASE + 2);
+            }
+        }
     }
     catch (const std::exception &e)
     {
         ROS_ERROR_STREAM(__PRETTY_FUNCTION__ << "::" << e.what());
-        m_Bithandler.SetBitMessage(BASE + 1);
+        m_Bithandler.SetBitMessage(pbm_statuses::BASE + 1);
         std::cerr << e.what() << '\n';
     }
+}
+
+const BT::NodeStatus PbmBootStrapper::tick_root_timing_wrapper()
+{
+    BT::NodeStatus tick_res;
+    std_msgs::Float32 msg;
+
+    msg.data = ros::Time::now().toNSec();
+    tick_res = m_generated_tree.tickRoot();
+    msg.data = ros::Time::now().toNSec() - msg.data;
+
+    m_publishers_dict[PBM_PUBLISHERS::DEBUG_TREE_TICK_TIMING].publish(msg);
+
+    return tick_res;
 }
 
 PbmBootStrapper::PbmBootStrapper(ros::NodeHandle &nh)

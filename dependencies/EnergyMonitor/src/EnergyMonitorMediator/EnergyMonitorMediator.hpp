@@ -2,11 +2,18 @@
 
 #include "IEnergyMonitorMediator.hpp"
 #include "IEnergyMonitorMediatorDataProvider.hpp"
+
 class EnergyMonitorMediator
     : public IEnergyMonitorMediator,
       public IEnergyMonitorMediatorDataProvider
 {
 public:
+    /**
+     * @brief Get the Logger object
+     * 
+     * @return std::shared_ptr<spdlog::logger> 
+     */
+    std::shared_ptr<spdlog::logger> GetLogger() override { return m_logger; };
     /**
      * @brief IEnergyMonitorMediator::LoadThresholdValues implementation.
      * 
@@ -73,10 +80,11 @@ public:
      */
     const ThresholdValues &GetComponentThresholds(const Components component) override;
 
-    EnergyMonitorMediator(/* args */);
+    EnergyMonitorMediator(std::shared_ptr<spdlog::logger> logger);
     ~EnergyMonitorMediator();
 
 private:
     Missions m_MissionPossible;
     std::unordered_map<DataMonitoringType, float> m_data_monitoring_type;
+    std::shared_ptr<spdlog::logger> m_logger;
 };

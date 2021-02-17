@@ -26,7 +26,7 @@ static const std::string mission_state_to_string(MISSION state)
 enum MissionsAvailable
 {
     NOT_IMPLEMENTED = 0,
-    FLY,
+    CAN_FLY,
     GO_HOME
 };
 
@@ -38,8 +38,8 @@ enum MissionsAvailable
  */
 static const MissionsAvailable string_to_available_mission(std::string loaded_mission)
 {
-    if (loaded_mission == "FLY")
-        return MissionsAvailable::FLY;
+    if (loaded_mission == "CAN_FLY")
+        return MissionsAvailable::CAN_FLY;
     if (loaded_mission == "GO_HOME")
         return MissionsAvailable::GO_HOME;
 
@@ -50,8 +50,8 @@ static const std::string mission_to_string(MissionsAvailable mission)
 {
     switch (mission)
     {
-    case MissionsAvailable::FLY:
-        return "FLY";
+    case MissionsAvailable::CAN_FLY:
+        return "CAN_FLY";
     case MissionsAvailable::GO_HOME:
         return "GO_HOME";
     default:

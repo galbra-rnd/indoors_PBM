@@ -18,8 +18,8 @@
 TEST(EnergyMonitorMediatorDataManagerTest, GetBatteryTimeEstimation)
 {
   // Setup
-  std::shared_ptr<IEnergyMonitorMediator> em = std::make_shared<EnergyMonitorMediator>();
-  std::vector<MissionsAvailable> new_missions{MissionsAvailable::FLY, MissionsAvailable::GO_HOME};
+  std::shared_ptr<IEnergyMonitorMediator> em = std::make_shared<EnergyMonitorMediator>(spdlog::basic_logger_mt("EnergyMonitorMediator", "/home/msi/logs/gal_temp2-log.txt"));
+  std::vector<MissionsAvailable> new_missions{MissionsAvailable::CAN_FLY, MissionsAvailable::GO_HOME};
 
   float estimation = 249;
   float DUMMY__MIN_BATTERY_TIME_LEFT_IN_SECS_THRESHOLD = 250;
@@ -41,7 +41,7 @@ TEST(EnergyMonitorMediatorDataManagerTest, GetBatteryTimeEstimation)
   auto curr_batt_est = getter->GetTimeEstimation(DataMonitoringType::BatteryTimeLeft);
   if (curr_batt_est < DUMMY__MIN_BATTERY_TIME_LEFT_IN_SECS_THRESHOLD)
   {
-    getter->SetMissionAvailability(MissionsAvailable::FLY, MISSION::RED);
+    getter->SetMissionAvailability(MissionsAvailable::CAN_FLY, MISSION::RED);
   }
 
   // Test
@@ -53,7 +53,7 @@ TEST(EnergyMonitorMediatorDataManagerTest, GetBatteryTimeEstimation)
     {
       ASSERT_EQ(mission.state, MISSION::GREEN);
     }
-    if (mission.mission == MissionsAvailable::FLY)
+    if (mission.mission == MissionsAvailable::CAN_FLY)
     {
       ASSERT_EQ(mission.state, MISSION::RED);
       is_found = true;
